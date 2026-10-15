@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs PHP with Xdebug enabled in coverage mode
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: xdebug
+          tools: composer
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --no-interaction --no-progress
+
+      - name: Tests + JUnit + coverage
+        run: composer coverage
+
+      - name: Coverage threshold (80%)
+        run: composer coverage-check
+
+      - name: Security audit
+        run: composer audit
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: build/

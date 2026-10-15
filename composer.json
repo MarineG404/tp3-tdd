@@ -7,5 +7,15 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^12.0"
+    },
+    "scripts": {
+        "test": "phpunit --log-junit build/junit.xml",
+        "coverage": "@php -d xdebug.mode=coverage vendor/bin/phpunit --log-junit build/junit.xml --testdox-html build/testdox.html --coverage-clover build/clover.xml --coverage-html build/coverage",
+        "coverage-check": "php scripts/check-coverage.php build/clover.xml 80",
+        "ci": [
+            "@coverage",
+            "@coverage-check",
+            "@composer audit"
+        ]
     }
 }
